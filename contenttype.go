@@ -58,7 +58,7 @@ func compareWithMimeFile(extension, mimeTypeFile string) (string, error) {
 	f, err := os.Open(mimeTypeFile)
 	if err != nil {
 		// we don't throw an error because we can't assume the file will be there
-		return "", nil
+		return "", err
 	}
 	defer f.Close()
 
