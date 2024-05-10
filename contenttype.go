@@ -30,7 +30,14 @@ func DetectFile(file string) (string, error) {
 	}
 
 	for _, mimeTypeFile := range knownfiles {
-		return compareWithMimeFile(extension, mimeTypeFile)
+		fileType, err := compareWithMimeFile(extension, mimeTypeFile)
+		if err != nil {
+			return "", err
+		}
+
+		if fileType != "" {
+			return fileType, nil
+		}
 	}
 
 	f, err := os.Open(file)
