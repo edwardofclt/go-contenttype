@@ -35,7 +35,6 @@ func DetectFile(file string) (string, error) {
 			// we don't throw an error because we can't assume the file will be there
 			continue
 		}
-		defer f.Close()
 
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
@@ -51,9 +50,11 @@ func DetectFile(file string) (string, error) {
 				return parts[0], nil
 			}
 		}
+		f.Close()
 	}
 
 	f, err := os.Open(file)
+	defer f.Close()
 	if err != nil {
 		return "", err
 	}
