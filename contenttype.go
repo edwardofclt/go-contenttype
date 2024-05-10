@@ -67,7 +67,7 @@ func compareWithMimeFile(extension, mimeTypeFile string) (string, error) {
 		line := scanner.Text()
 
 		// if the first character of the line is a comment, skip it
-		if line[0] == '#' {
+		if strings.HasPrefix(line, "#") {
 			continue
 		}
 
