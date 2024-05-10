@@ -30,34 +30,14 @@ func DetectFile(file string) (string, error) {
 	}
 
 	for _, mimeTypeFile := range knownfiles {
-		f, err := os.Open(mimeTypeFile)
-		if err != nil {
-			// we don't throw an error because we can't assume the file will be there
-			continue
-		}
-
-		scanner := bufio.NewScanner(f)
-		for scanner.Scan() {
-			line := scanner.Text()
-
-			// if the first character of the line is a comment, skip it
-			if line[0] == '#' {
-				continue
-			}
-
-			parts := strings.Split(scanner.Text(), "\t")
-			if fmt.Sprintf(".%s", parts[len(parts)-1]) == extension {
-				return parts[0], nil
-			}
-		}
-		f.Close()
+		return compareWithMimeFile(extension, mimeTypeFile)
 	}
 
 	f, err := os.Open(file)
-	defer f.Close()
 	if err != nil {
 		return "", err
 	}
+	defer f.Close()
 	fileContent, err := io.ReadAll(f)
 	if err != nil {
 		return "", err
@@ -65,4 +45,29 @@ func DetectFile(file string) (string, error) {
 
 	finalAttempt := http.DetectContentType(fileContent)
 	return finalAttempt, nil
+}
+
+func compareWithMimeFile(extension, mimeTypeFile string) (string, error) {
+	f, err := os.Open(mimeTypeFile)
+	if err != nil {
+		// we don't throw an error because we can't assume the file will be there
+		return "", nil
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// if the first character of the line is a comment, skip it
+		if line[0] == '#' {
+			continue
+		}
+
+		parts := strings.Split(scanner.Text(), "\t")
+		if fmt.Sprintf(".%s", parts[len(parts)-1]) == extension {
+			return parts[0], nil
+		}
+	}
+	return "", nil
 }
